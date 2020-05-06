@@ -1,0 +1,10 @@
+{
+    "sender": {
+        "address": "us.elb.relay.logtrust.net",
+        "port": 443,
+        "chain": "chain.crt",
+        "cert": "domaincert.crt",
+        "key": "domaincert.key"
+    },
+    "tag": "cloud.aws.cloudtrail.events"
+}
