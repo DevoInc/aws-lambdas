@@ -20,14 +20,6 @@ cp README.txt /mnt/README.txt
 cp -r devo /mnt/
 umount /mnt
 
-#Generate cloudtrail str lambda
-fuse-zip ./dist/aws_s3_lambda_devo_cloudtrail_txt.zip /mnt
-cp cloudtrail_config.json.example /mnt/config.json
-cp lambda_function_cloudtrail_str.py /mnt/lambda_function.py
-cp README.txt /mnt/README.txt
-cp -r devo /mnt/
-umount /mnt
-
 #Generate cloudtrail json lambda
 fuse-zip ./dist/aws_s3_lambda_devo_cloudtrail_json.zip /mnt
 cp cloudtrail_config.json.example /mnt/config.json

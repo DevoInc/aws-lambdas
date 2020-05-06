@@ -14,18 +14,24 @@ print("Loading lambda function")
 s3 = boto3.client('s3')
 
 
+def encode(record):
+    if not isinstance(record, bytes):
+        return record.encode('utf-8')
+    return record
+
+
 def lambda_handler(event, context):
     # Get the object from the event and show its content type
     bucket = event['Records'][0]['s3']['bucket']['name']
-    key = urllib.unquote_plus(event['Records'][0]['s3']['object']['key']).decode('utf8')
+    key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'])
     try:
         print("File to process %s" % key)
         response = s3.get_object(Bucket=bucket, Key=key)
         body = response['Body']
         data = body.read()
-		
-	###### START: From this point until END, you need to 
-	###### carefully review the code to make sure all 
+
+	###### START: From this point until END, you need to
+	###### carefully review the code to make sure all
 	###### variables match your environment.
 
         # If the name has a .gz extension, then decompress the data
@@ -41,14 +47,12 @@ def lambda_handler(event, context):
         for line in data.splitlines():
             events_json = json.loads(line)
             for single_event in events_json["Records"]:
-                counter += con.send(tag=config.get("tag"),
-                                    msg=json.dumps(single_event),
+                counter += con.send(tag=encode(config.get("tag")),
+                                    msg=encode(json.dumps(single_event)),
                                     zip=False)
         con.close()
         print("Finished sending lines to Devo (%d)" % counter)
-		
 	###### END of code containing key variables.
-
     except Exception as e:
         print(e)
         print("Error getting file '%s' from bucket '%s'. Make sure they \

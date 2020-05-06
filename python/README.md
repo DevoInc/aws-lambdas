@@ -1,5 +1,11 @@
 # CREATING AN AWS LAMBDA FUNCTION TO SEND DATA FROM AN S3 BUCKET TO DEVO
 
+## Python version
+
+Python 3.7
+
+## About
+
 The files in this ZIP are needed in order to create the Lambda function that will send events in an S3 bucket 
 to your Devo domain. Follow the instructions in:
 https://docs.devo.com/confluence/ndt/sending-data-to-devo/event-sources/cloud-services/aws-s3-buckets

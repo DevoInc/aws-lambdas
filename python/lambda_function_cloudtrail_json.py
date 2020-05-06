@@ -13,12 +13,16 @@ print("Loading lambda function")
 
 s3 = boto3.client('s3')
 
+def encode(record):
+    if not isinstance(record, bytes):
+        return record.encode('utf-8')
+    return record
+
 
 def lambda_handler(event, context):
     # Get the object from the event and show its content type
     bucket = event['Records'][0]['s3']['bucket']['name']
-    key = urllib.unquote_plus(
-        event['Records'][0]['s3']['object']['key']).decode('utf8')
+    key = urllib.parse.unquote_plus(event['Records'][0]['s3']['object']['key'])
     try:
         print("File to process %s" % key)
         response = s3.get_object(Bucket=bucket, Key=key)
@@ -60,8 +64,8 @@ def lambda_handler(event, context):
                                               aws_account_id,
                                               aws_region)
 
-                counter += con.send(tag=tag,
-                                    msg=dumped_event,
+                counter += con.send(tag=encode(tag),
+                                    msg=encode(dumped_event),
                                     zip=False)
         con.close()
         print("Finished sending lines to Devo (%d)" % counter)
