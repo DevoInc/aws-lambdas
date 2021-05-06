@@ -27,7 +27,9 @@ SIMPLECOMPACT_TO_ARRAY = "jsoncompactsimple_to_array"
 ERROR_MSGS = {
     "no_query": "Error: Not query provided.",
     "no_auth": "Client dont have key&secret or auth token/jwt",
-    "no_endpoint": "Endpoint 'address' not found"
+    "no_endpoint": "Endpoint 'address' not found",
+    "to_but_no_from": "If you use end dates for the query 'to' it is "
+                      "necessary to use start date 'from'"
 }
 
 
@@ -133,7 +135,7 @@ class Client:
     The Devo seach rest api main class
     """
     def __init__(self, address=None, auth=None, config=None,
-                 retries=None, timeout=None):
+                 retries=None, timeout=None, verify=None):
         """
         Initialize the API with this params, all optionals
         :param address: endpoint
@@ -155,12 +157,13 @@ class Client:
                                                  "token": config.get("token",
                                                                      None)})
 
-            retries = retries if retries else config.get("retries", 3)
-            timeout = timeout if timeout else config.get("timeout", 30)
+            verify = verify if verify is not None \
+                else config.get("verify", True)
+            retries = retries if retries is not None \
+                else config.get("retries", 3)
+            timeout = timeout if timeout is not None \
+                else config.get("timeout", 30)
             self.config = self._from_dict(config)
-
-        retries = int(retries) if retries else 3
-        timeout = int(timeout) if timeout else 30
 
         self.auth = auth
         if not address:
@@ -170,9 +173,9 @@ class Client:
 
         self.address = self.__get_address_parts(address)
 
-        self.retries = retries
-        self.timeout = timeout
-        self.verify = True
+        self.retries = int(retries) if retries else 3
+        self.timeout = int(timeout) if timeout else 30
+        self.verify = verify if verify is not None else True
 
     @staticmethod
     def _from_dict(config):
@@ -386,7 +389,8 @@ class Client:
         :return: Return the formed payload
         """
         date_from = default_from(dates['from'])
-        date_to = default_to(dates['to'])
+        date_to = default_to(dates['to']) if dates['to'] is not None else None
+
         payload = {
             "from":
                 int(date_from / 1000) if isinstance(date_from, (int, float))

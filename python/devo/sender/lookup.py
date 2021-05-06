@@ -207,7 +207,7 @@ class Lookup:
                                                          key_index=key_index)
                         self.send_data(row=p_fields,
                                        delete=field_action == "delete"
-                                              or field_action == "DELETE")
+                                       or field_action == "DELETE")
 
                         # Send full log for historic
                         if historic_tag is not None:
@@ -260,7 +260,7 @@ class Lookup:
 
         >>>row = Lookup.list_to_fields(fields, "23")
         >>>obj.send_data(row)
-        :param row: row to send
+        :param row: row t   o send
         :param delete: True or False. Its true, delete row with same key
         :return:
         """
@@ -315,12 +315,14 @@ class Lookup:
         :param list headers: list of headers names
         :param str key: key name (Must be in headers)
         :param str type_of_key: type of the key field
+        :param int key_index: index number instead of key name
+        :param list types: types of each row
         :result str:
         """
         # First the key
         if key is not None:
             out = '[{"%s":{"type":"%s","key":true}}' % (key, types[key_index]
-                                                        if types
+                                                        if key_index and types
                                                         else type_of_key)
         elif key_index is not None:
             key = headers[key_index]
@@ -340,7 +342,7 @@ class Lookup:
             # If file is the key don't add
             if item == key:
                 continue
-            field_type = "str" if not isinstance(types, dict) else types[aux]
+            field_type = "str" if not isinstance(types, list) else types[aux]
             out += ',{"%s":{"type":"%s"}}' % (item, field_type)
         out += ']'
         return out
@@ -402,10 +404,14 @@ class Lookup:
         :param str field: field for clean
         :return str: cleaned field
         """
+        if not isinstance(field, (str, bytes)):
+            return field
+
         field = field.strip()
-        if not Lookup.is_number(field):
-            field = '"%s"' % field
-        return field
+        if Lookup.is_number(field):
+            return field
+
+        return '"%s"' % field
 
     @staticmethod
     def is_number(text=""):
